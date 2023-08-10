@@ -16,3 +16,8 @@ spring:
     init:
       mode: always
       schema-locations: classpath:sql/schema.sql
+
+jwt:
+  algorithm: HS256
+  secret: ${JWT_SECRET}
+  validity-period: 2         # 2 hours
