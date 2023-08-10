@@ -1,5 +1,7 @@
 package com.wantedbackendassignment.api.user;
 
+import com.wantedbackendassignment.api.dto.SignUpDto;
+
 public class UserUtils {
 
     public static User createDummyUser(String dummyEmail, String dummyPassword) {
@@ -9,4 +11,7 @@ public class UserUtils {
                 .build();
     }
 
+    public static SignUpDto createSignUpDto(String dummyEmail, String dummyPassword) {
+        return new SignUpDto(dummyEmail, dummyPassword);
+    }
 }
