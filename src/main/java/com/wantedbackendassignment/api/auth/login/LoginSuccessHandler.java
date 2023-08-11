@@ -3,6 +3,7 @@ package com.wantedbackendassignment.api.auth.login;
 import com.wantedbackendassignment.api.auth.jwt.JwtProvider;
 import com.wantedbackendassignment.api.auth.jwt.JwtVo;
 import com.wantedbackendassignment.api.properties.JwtProperties;
+import com.wantedbackendassignment.api.utils.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,16 +15,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-import static com.wantedbackendassignment.api.utils.HttpUtils.createSuccessResponse;
-import static com.wantedbackendassignment.api.utils.HttpUtils.getCookieOfAccessToken;
-import static com.wantedbackendassignment.api.utils.HttpUtils.setResponseWithCookie;
-
 @Component
 @RequiredArgsConstructor
 public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     private final JwtProvider jwtProvider;
     private final JwtProperties jwtProperties;
+    private final HttpUtils httpUtils;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -36,10 +34,10 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
         String accessToken = jwtProvider.generate(jwtInfo);
         long validityPeriod = jwtProperties.getValidityPeriod();
 
-        setResponseWithCookie(
+        httpUtils.setResponseWithCookie(
                 response,
-                createSuccessResponse("login success", HttpStatus.OK.value()),
-                getCookieOfAccessToken(accessToken, validityPeriod)
+                httpUtils.createSuccessResponse("login success", HttpStatus.OK.value()),
+                httpUtils.getCookieOfAccessToken(accessToken, validityPeriod)
         );
     }
 }

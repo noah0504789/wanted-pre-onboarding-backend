@@ -2,6 +2,7 @@ package com.wantedbackendassignment.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wantedbackendassignment.api.auth.CustomExceptionHandlerFilter;
+import com.wantedbackendassignment.api.auth.jwt.JwtAuthenticationFilter;
 import com.wantedbackendassignment.api.auth.login.LoginFailureHandler;
 import com.wantedbackendassignment.api.auth.login.LoginFilter;
 import com.wantedbackendassignment.api.auth.login.LoginProvider;
@@ -35,6 +36,8 @@ public class SecurityConfig {
     private final LocalValidatorFactoryBean validator;
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
+    private final CustomExceptionHandlerFilter createExceptionHandlerFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @PostConstruct
     private void init() {
@@ -62,11 +65,11 @@ public class SecurityConfig {
             req.anyRequest().permitAll();
         });
 
-        CustomExceptionHandlerFilter exceptionHandlerFilter = createExceptionHandlerFilter();
-        LoginFilter loginFilter = createLoginFilter(authenticationManager(loginProvider));
+        LoginFilter loginFilter = loginFilter(authenticationManager(loginProvider));
 
-        http.addFilterBefore(exceptionHandlerFilter, HeaderWriterFilter.class)
-            .addFilterAfter(loginFilter, exceptionHandlerFilter.getClass());
+        http.addFilterBefore(createExceptionHandlerFilter, HeaderWriterFilter.class)
+            .addFilterAfter(loginFilter, createExceptionHandlerFilter.getClass())
+            .addFilterAfter(jwtAuthenticationFilter, loginFilter.getClass());
 
         return http.build();
     }
@@ -83,11 +86,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    private LoginFilter createLoginFilter(AuthenticationManager authenticationManager) {
+    public LoginFilter loginFilter(AuthenticationManager authenticationManager) {
         LoginFilter loginFilter = new LoginFilter(authenticationManager, objectMapper, validator);
         loginFilter.setFilterProcessesUrl("/api/login");
         loginFilter.setAuthenticationSuccessHandler(loginSuccessHandler);
@@ -95,9 +94,5 @@ public class SecurityConfig {
         loginFilter.afterPropertiesSet();
 
         return loginFilter;
-    }
-
-    private CustomExceptionHandlerFilter createExceptionHandlerFilter() {
-        return new CustomExceptionHandlerFilter(objectMapper);
     }
 }

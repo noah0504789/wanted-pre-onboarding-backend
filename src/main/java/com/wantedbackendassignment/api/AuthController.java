@@ -1,8 +1,8 @@
 package com.wantedbackendassignment.api;
 
-import com.wantedbackendassignment.api.dto.ResponseDto;
 import com.wantedbackendassignment.api.dto.SignUpDto;
 import com.wantedbackendassignment.api.user.IUserService;
+import com.wantedbackendassignment.api.utils.HttpUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final IUserService userService;
+    private final HttpUtils httpUtils;
 
     @PostMapping("/sign-up")
     public ResponseEntity signUp(final @Valid @RequestBody SignUpDto signUpDto) {
@@ -25,6 +26,9 @@ public class AuthController {
 
         userService.signUp(signUpDto);
 
-        return new ResponseEntity<>(ResponseDto.success("sign-up success", created.value()), created);
+        return new ResponseEntity<>(
+                httpUtils.createSuccessResponse("sign-up success", created.value()),
+                created
+        );
     }
 }
