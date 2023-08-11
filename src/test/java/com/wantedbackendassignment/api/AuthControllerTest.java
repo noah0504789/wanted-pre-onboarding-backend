@@ -1,48 +1,88 @@
 package com.wantedbackendassignment.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wantedbackendassignment.api.auth.jwt.JwtAuthenticationFilter;
+import com.wantedbackendassignment.api.auth.login.LoginFailureHandler;
+import com.wantedbackendassignment.api.auth.login.LoginFilter;
+import com.wantedbackendassignment.api.auth.login.LoginProvider;
+import com.wantedbackendassignment.api.auth.login.LoginSuccessHandler;
+import com.wantedbackendassignment.api.config.SecurityConfig;
 import com.wantedbackendassignment.api.dto.SignUpDto;
 import com.wantedbackendassignment.api.user.UserService;
+import com.wantedbackendassignment.api.utils.HttpUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.stream.Stream;
 
-import static com.wantedbackendassignment.api.user.UserUtils.createDummyUser;
-import static com.wantedbackendassignment.api.user.UserUtils.createSignUpDto;
+import static com.wantedbackendassignment.api.UserUtils.createDummyUser;
+import static com.wantedbackendassignment.api.UserUtils.createSignUpDto;
 import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AuthController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(
+    value = AuthController.class,
+    includeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {HttpUtils.class, SecurityConfig.class})
+    }
+)
 class AuthControllerTest {
 
     @Autowired
     private MockMvc mvc;
 
     @Autowired
+    private WebApplicationContext ctx;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockBean
+    private LoginFilter loginFilter;
+
+    @MockBean
+    private LoginProvider loginProvider;
+
+    @MockBean
+    private LoginSuccessHandler loginSuccessHandler;
+
+    @MockBean
+    private LoginFailureHandler loginFailureHandler;
+
+    @BeforeEach
+    void init() {
+        mvc = MockMvcBuilders.webAppContextSetup(ctx)
+                .apply(springSecurity())
+                .alwaysDo(print())
+                .build();
+    }
 
     String signUpUrl = "/api/auth/sign-up";
 
@@ -52,9 +92,6 @@ class AuthControllerTest {
         String dummyEmail = "test@wanted.com";
         String dummyPassword = "12345678";
         SignUpDto signUpDto = createSignUpDto(dummyEmail, dummyPassword);
-
-        given(userService.signUp(any(SignUpDto.class)))
-                .willReturn(createDummyUser(dummyEmail, "encoded" + dummyPassword));
 
         mvc.perform(post(signUpUrl)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -71,8 +108,8 @@ class AuthControllerTest {
     void signUp_failure_input_invalid(String invalidEmail, String invalidPassword) throws Exception {
         SignUpDto signUpDto = createSignUpDto(invalidEmail, invalidPassword);
 
-        given(userService.signUp(any(SignUpDto.class)))
-                .willReturn(createDummyUser(invalidEmail, "encoded" + invalidPassword));
+        when(userService.signUp(any(SignUpDto.class)))
+                .thenReturn(createDummyUser(invalidEmail, "encoded" + invalidPassword));
 
         mvc.perform(post(signUpUrl)
                         .contentType(MediaType.APPLICATION_JSON)
