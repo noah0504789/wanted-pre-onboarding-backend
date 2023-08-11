@@ -1,5 +1,6 @@
 package com.wantedbackendassignment.api.user;
 
+import com.wantedbackendassignment.api.dto.LoginDto;
 import com.wantedbackendassignment.api.dto.SignUpDto;
 
 public class UserUtils {

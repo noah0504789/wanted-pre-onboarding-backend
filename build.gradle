@@ -27,6 +27,7 @@ dependencies {
     implementation      'org.springframework.boot:spring-boot-starter-security'
 
     testImplementation  'org.springframework.boot:spring-boot-starter-test'
+    testImplementation  'org.springframework.security:spring-security-test:6.0.2'
 
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
