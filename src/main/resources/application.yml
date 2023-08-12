@@ -6,12 +6,11 @@ spring:
     password: ${DB_PASSWORD}
   jpa:
     database: mysql
-    show-sql: true
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.MySQL8Dialect
   sql:
     init:
       mode: always
@@ -21,3 +20,10 @@ jwt:
   algorithm: HS256
   secret: ${JWT_SECRET}
   validity-period: 2         # 2 hours
+
+logging:
+  level:
+    org:
+      hibernate:
+        sql: trace
+        type.descriptor.sql: trace

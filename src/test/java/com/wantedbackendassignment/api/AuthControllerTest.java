@@ -2,12 +2,15 @@ package com.wantedbackendassignment.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wantedbackendassignment.api.auth.jwt.JwtAuthenticationFilter;
+import com.wantedbackendassignment.api.auth.jwt.JwtProvider;
 import com.wantedbackendassignment.api.auth.login.LoginFailureHandler;
 import com.wantedbackendassignment.api.auth.login.LoginFilter;
 import com.wantedbackendassignment.api.auth.login.LoginProvider;
 import com.wantedbackendassignment.api.auth.login.LoginSuccessHandler;
 import com.wantedbackendassignment.api.config.SecurityConfig;
 import com.wantedbackendassignment.api.dto.SignUpDto;
+import com.wantedbackendassignment.api.user.User;
+import com.wantedbackendassignment.api.user.UserMapper;
 import com.wantedbackendassignment.api.user.UserService;
 import com.wantedbackendassignment.api.utils.HttpUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(
     value = AuthController.class,
     includeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {HttpUtils.class, SecurityConfig.class})
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {HttpUtils.class, SecurityConfig.class, UserMapper.class})
     }
 )
 class AuthControllerTest {
@@ -62,12 +65,6 @@ class AuthControllerTest {
     private UserService userService;
 
     @MockBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    @MockBean
-    private LoginFilter loginFilter;
-
-    @MockBean
     private LoginProvider loginProvider;
 
     @MockBean
@@ -75,6 +72,9 @@ class AuthControllerTest {
 
     @MockBean
     private LoginFailureHandler loginFailureHandler;
+
+    @MockBean
+    private JwtProvider jwtProvider;
 
     @BeforeEach
     void init() {
@@ -94,8 +94,8 @@ class AuthControllerTest {
         SignUpDto signUpDto = createSignUpDto(dummyEmail, dummyPassword);
 
         mvc.perform(post(signUpUrl)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(signUpDto)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(signUpDto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("responseCode", is(201)))
                 .andExpect(jsonPath("data", is("sign-up success")))
@@ -108,7 +108,7 @@ class AuthControllerTest {
     void signUp_failure_input_invalid(String invalidEmail, String invalidPassword) throws Exception {
         SignUpDto signUpDto = createSignUpDto(invalidEmail, invalidPassword);
 
-        when(userService.signUp(any(SignUpDto.class)))
+        when(userService.signUp(any(User.class)))
                 .thenReturn(createDummyUser(invalidEmail, "encoded" + invalidPassword));
 
         mvc.perform(post(signUpUrl)

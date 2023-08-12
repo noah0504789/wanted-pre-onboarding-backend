@@ -41,7 +41,25 @@ public class Post {
     @Column(name = "LAST_MODIFIED_DATE")
     private LocalDateTime lastModifiedDate;
 
+    @Builder
+    public Post(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public void setAuthor(User author) {
         this.author = author;
+    }
+
+    public boolean isAuthor(User user) {
+        return author.getEmail().equals(user.getEmail());
     }
 }

@@ -5,7 +5,7 @@ import com.wantedbackendassignment.api.dto.SignUpDto;
 
 public interface IUserService {
 
-    User signUp(SignUpDto signUpDto);
+    User signUp(User newUser);
 
     boolean isEqualPassword(String rawPassword, String hashPassword);
 }

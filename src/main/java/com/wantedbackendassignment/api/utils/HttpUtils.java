@@ -67,12 +67,12 @@ public class HttpUtils {
     }
 
     public void setResponseWithCookie(HttpServletResponse response, ResponseDto body, Cookie accessToken) throws IOException {
-        setResponse(response, body);
         response.addCookie(accessToken);
+        setResponse(response, body);
     }
 
     public void setResponseWithRedirect(HttpServletResponse response, ResponseDto body, String redirectPath) throws IOException {
-        setResponse(response, body);
         response.setHeader("Location", redirectPath);
+        setResponse(response, body);
     }
 }

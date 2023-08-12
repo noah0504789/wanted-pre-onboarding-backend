@@ -3,15 +3,19 @@ package com.wantedbackendassignment.api.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wantedbackendassignment.api.auth.CustomExceptionHandlerFilter;
 import com.wantedbackendassignment.api.auth.jwt.JwtAuthenticationFilter;
+import com.wantedbackendassignment.api.auth.jwt.JwtProvider;
 import com.wantedbackendassignment.api.auth.login.LoginFailureHandler;
 import com.wantedbackendassignment.api.auth.login.LoginFilter;
 import com.wantedbackendassignment.api.auth.login.LoginProvider;
 import com.wantedbackendassignment.api.auth.login.LoginSuccessHandler;
+import com.wantedbackendassignment.api.utils.HttpUtils;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -19,9 +23,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
@@ -36,13 +38,14 @@ public class SecurityConfig {
     private final LocalValidatorFactoryBean validator;
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
-    private final CustomExceptionHandlerFilter createExceptionHandlerFilter;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtProvider jwtProvider;
+    private final HttpUtils httpUtils;
 
     @PostConstruct
     private void init() {
         AUTHENTICATION_WHITELIST = new String[]{
-                "/api/auth/sign-up"
+                "/api/auth/sign-up",
+                "/api/post/list"
         };
     }
 
@@ -50,7 +53,8 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .requestMatchers(AUTHENTICATION_WHITELIST);
+                .requestMatchers(AUTHENTICATION_WHITELIST)
+                .requestMatchers(request -> isGETRequestAt(request, "/api/post"));
     }
 
     @Bean
@@ -66,9 +70,11 @@ public class SecurityConfig {
         });
 
         LoginFilter loginFilter = loginFilter(authenticationManager(loginProvider));
+        CustomExceptionHandlerFilter customExceptionHandlerFilter = customExceptionHandlerFilter();
+        JwtAuthenticationFilter jwtAuthenticationFilter = jwtAuthenticationFilter();
 
-        http.addFilterBefore(createExceptionHandlerFilter, HeaderWriterFilter.class)
-            .addFilterAfter(loginFilter, createExceptionHandlerFilter.getClass())
+        http.addFilterBefore(customExceptionHandlerFilter, HeaderWriterFilter.class)
+            .addFilterAfter(loginFilter, customExceptionHandlerFilter.getClass())
             .addFilterAfter(jwtAuthenticationFilter, loginFilter.getClass());
 
         return http.build();
@@ -85,8 +91,11 @@ public class SecurityConfig {
         return builder.build();
     }
 
-    @Bean
-    public LoginFilter loginFilter(AuthenticationManager authenticationManager) {
+    private CustomExceptionHandlerFilter customExceptionHandlerFilter() {
+        return new CustomExceptionHandlerFilter(httpUtils);
+    }
+
+    private LoginFilter loginFilter(AuthenticationManager authenticationManager) {
         LoginFilter loginFilter = new LoginFilter(authenticationManager, objectMapper, validator);
         loginFilter.setFilterProcessesUrl("/api/login");
         loginFilter.setAuthenticationSuccessHandler(loginSuccessHandler);
@@ -94,5 +103,14 @@ public class SecurityConfig {
         loginFilter.afterPropertiesSet();
 
         return loginFilter;
+    }
+
+    private JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtProvider, httpUtils);
+    }
+
+    private boolean isGETRequestAt(HttpServletRequest request, String requestUrl) {
+        return request.getRequestURI().startsWith(requestUrl) &&
+                request.getMethod().equalsIgnoreCase(HttpMethod.GET.toString());
     }
 }

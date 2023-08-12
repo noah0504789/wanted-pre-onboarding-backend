@@ -2,6 +2,8 @@ package com.wantedbackendassignment.api;
 
 import com.wantedbackendassignment.api.dto.SignUpDto;
 import com.wantedbackendassignment.api.user.IUserService;
+import com.wantedbackendassignment.api.user.User;
+import com.wantedbackendassignment.api.user.UserMapper;
 import com.wantedbackendassignment.api.utils.HttpUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
+    private final UserMapper userMapper;
     private final IUserService userService;
     private final HttpUtils httpUtils;
 
@@ -24,7 +27,8 @@ public class AuthController {
     public ResponseEntity signUp(final @Valid @RequestBody SignUpDto signUpDto) {
         HttpStatus created = HttpStatus.CREATED;
 
-        userService.signUp(signUpDto);
+        User newUser = userMapper.toUser(signUpDto);
+        userService.signUp(newUser);
 
         return new ResponseEntity<>(
                 httpUtils.createSuccessResponse("sign-up success", created.value()),

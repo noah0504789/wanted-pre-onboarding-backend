@@ -62,12 +62,10 @@ class LoginSuccessHandlerTest {
         when(jwtProperties.getValidityPeriod()).thenReturn(validityPeriod);
 
         ResponseDto<String> expectedResponseDto = ResponseDto.success("login success", HttpStatus.OK.value());
-        when(httpUtils.createSuccessResponse(anyString(), anyInt()))
-                .thenReturn(expectedResponseDto);
+        when(httpUtils.createSuccessResponse(anyString(), anyInt())).thenReturn(expectedResponseDto);
 
         Cookie expectedCookie = new Cookie("access_token", accessToken);
-        when(httpUtils.getCookieOfAccessToken(accessToken, validityPeriod))
-                .thenReturn(expectedCookie);
+        when(httpUtils.getCookieOfAccessToken(accessToken, validityPeriod)).thenReturn(expectedCookie);
 
         loginSuccessHandler.onAuthenticationSuccess(null, response, authentication);
 

@@ -40,17 +40,14 @@ class UserServiceTest {
         String dummyPassword = "12345678";
         User dummyUser = createDummyUser(dummyEmail, dummyPassword);
 
-        when(userMapper.toUser(any(SignUpDto.class))).thenReturn(dummyUser);
-
         String encodedDummyPassword = "encoded_12345678";
         when(passwordEncoder.encode(anyString())).thenReturn(encodedDummyPassword);
 
         dummyUser.setPassword(encodedDummyPassword);
         when(userRepository.save(any(User.class))).thenReturn(dummyUser);
 
-        User savedUser = userService.signUp(new SignUpDto(dummyEmail, dummyPassword));
+        User savedUser = userService.signUp(createDummyUser(dummyEmail, dummyPassword));
 
-        verify(userMapper, times(1)).toUser(any(SignUpDto.class));
         verify(passwordEncoder, times(1)).encode(anyString());
         verify(userRepository, times(1)).save(any(User.class));
 

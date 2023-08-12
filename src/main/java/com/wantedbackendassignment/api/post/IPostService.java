@@ -1,14 +1,15 @@
 package com.wantedbackendassignment.api.post;
 
-import com.wantedbackendassignment.api.dto.PostInfoDto;
-import com.wantedbackendassignment.api.dto.PostUpdateDto;
 import com.wantedbackendassignment.api.user.User;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
-
 public interface IPostService {
-    Post create(PostUpdateDto postUpdateDto, User author);
+    Post create(Post newPost, User author);
 
-    List<PostInfoDto> getPostDtos(PageRequest pageRequest);
+    Page<Post> getPosts(PageRequest pageRequest);
+
+    Post getPost(Long id);
+
+    Post save(Post updated);
 }

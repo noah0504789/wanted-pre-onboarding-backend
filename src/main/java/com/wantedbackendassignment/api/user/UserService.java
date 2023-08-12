@@ -1,6 +1,5 @@
 package com.wantedbackendassignment.api.user;
 
-import com.wantedbackendassignment.api.dto.SignUpDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService implements IUserService, UserDetailsService {
 
-    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
@@ -26,9 +24,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public User signUp(SignUpDto signUpDto) {
-        User newUser = userMapper.toUser(signUpDto);
-
+    public User signUp(User newUser) {
         String encodedPassword = passwordEncoder.encode(newUser.getPassword());
         newUser.setPassword(encodedPassword);
 

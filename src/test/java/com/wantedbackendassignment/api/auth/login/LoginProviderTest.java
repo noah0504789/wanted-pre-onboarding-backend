@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import static com.wantedbackendassignment.api.UserUtils.createAuthentication;
 import static com.wantedbackendassignment.api.UserUtils.createDummyUser;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -36,7 +37,7 @@ class LoginProviderTest {
         when(userService.loadUserByUsername(dummyEmail)).thenReturn(dummyUser);
         when(userService.isEqualPassword(dummyPassword, dummyUser.getPassword())).thenReturn(true);
 
-        Authentication auth = new UsernamePasswordAuthenticationToken(dummyEmail, dummyPassword);
+        Authentication auth = createAuthentication(dummyEmail, dummyPassword);
         Authentication result = loginProvider.authenticate(auth);
 
         assertNotNull(result);
@@ -50,7 +51,7 @@ class LoginProviderTest {
         when(userService.loadUserByUsername(nonExistsEmail)).thenThrow(UsernameNotFoundException.class);
 
         String dummyPassword = "12345678";
-        Authentication auth = new UsernamePasswordAuthenticationToken(nonExistsEmail, dummyPassword);
+        Authentication auth = createAuthentication(nonExistsEmail, dummyPassword);
 
         assertThrows(UsernameNotFoundException.class, () -> loginProvider.authenticate(auth));
     }
@@ -66,7 +67,7 @@ class LoginProviderTest {
         String mismatchedPassword = "123456789";
         when(userService.isEqualPassword(mismatchedPassword, dummyUser.getPassword())).thenReturn(false);
 
-        Authentication auth = new UsernamePasswordAuthenticationToken(dummyEmail, mismatchedPassword);
+        Authentication auth = createAuthentication(dummyEmail, mismatchedPassword);
 
         assertThrows(BadCredentialsException.class, () -> loginProvider.authenticate(auth));
     }

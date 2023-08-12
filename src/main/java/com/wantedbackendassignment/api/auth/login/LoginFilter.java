@@ -3,6 +3,7 @@ package com.wantedbackendassignment.api.auth.login;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wantedbackendassignment.api.dto.LoginDto;
 import com.wantedbackendassignment.api.exception.LoginInvalidException;
+import com.wantedbackendassignment.api.utils.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
