@@ -29,7 +29,7 @@ public class PostService implements IPostService {
     @Override
     public Post getPost(Long id) {
         return postRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("No post"));
+                        .orElseThrow(() -> new IllegalArgumentException("This post does not exist"));
     }
 
     @Override

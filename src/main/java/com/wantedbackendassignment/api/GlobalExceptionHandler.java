@@ -18,12 +18,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<ResponseDto<ValidationResult>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        ValidationResult errors = ValidationResult.of(e);
-
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+
+        ValidationResult errors = ValidationResult.of(e);
 
         return new ResponseEntity<>(
                 httpUtils.createFailureResponse(errors, badRequest.value()),
+                badRequest
+        );
+    }
+
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<ResponseDto> handleIllegalArgumentException(IllegalArgumentException e) {
+        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+
+        return new ResponseEntity<>(
+                httpUtils.createFailureResponse(e.getMessage(), badRequest.value()),
                 badRequest
         );
     }
