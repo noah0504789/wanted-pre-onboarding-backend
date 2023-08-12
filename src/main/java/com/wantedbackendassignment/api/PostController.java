@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -87,6 +88,17 @@ public class PostController {
         postService.save(updatedPost);
 
         return new ResponseEntity<>("edit post success", created);
+    }
+
+    @DeleteMapping("")
+    public ResponseEntity delete(@RequestParam("id") Post currentPost, @AuthenticationPrincipal User currentUser) {
+        checkAuthorship(currentPost, currentUser);
+
+        HttpStatus ok = HttpStatus.OK;
+
+        postService.delete(currentPost);
+
+        return new ResponseEntity<>("delete post success", ok);
     }
 
     private PageRequest getPageRequest(Map<String, String> pageRequest) {

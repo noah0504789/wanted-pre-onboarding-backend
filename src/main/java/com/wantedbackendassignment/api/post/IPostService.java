@@ -12,4 +12,6 @@ public interface IPostService {
     Post getPost(Long id);
 
     Post save(Post updated);
+
+    void delete(Post post);
 }

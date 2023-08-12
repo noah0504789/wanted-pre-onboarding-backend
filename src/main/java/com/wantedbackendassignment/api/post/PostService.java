@@ -36,4 +36,9 @@ public class PostService implements IPostService {
     public Post save(Post updatedPost) {
         return postRepository.save(updatedPost);
     }
+
+    @Override
+    public void delete(Post post) {
+        postRepository.delete(post);
+    }
 }
