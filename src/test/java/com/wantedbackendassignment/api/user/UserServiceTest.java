@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static com.wantedbackendassignment.api.UserUtils.createDummyUser;
+import static com.wantedbackendassignment.api.UserUtils.createUser;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -37,7 +37,7 @@ class UserServiceTest {
     void signUp_success() {
         String dummyEmail = "test@wanted.com";
         String dummyPassword = "12345678";
-        User dummyUser = createDummyUser(dummyEmail, dummyPassword);
+        User dummyUser = createUser(dummyEmail, dummyPassword);
 
         String encodedDummyPassword = "encoded_12345678";
         when(passwordEncoder.encode(anyString())).thenReturn(encodedDummyPassword);
@@ -45,7 +45,7 @@ class UserServiceTest {
         dummyUser.setPassword(encodedDummyPassword);
         when(userRepository.save(any(User.class))).thenReturn(dummyUser);
 
-        User savedUser = userService.signUp(createDummyUser(dummyEmail, dummyPassword));
+        User savedUser = userService.signUp(createUser(dummyEmail, dummyPassword));
 
         verify(passwordEncoder, times(1)).encode(anyString());
         verify(userRepository, times(1)).save(any(User.class));
@@ -59,7 +59,7 @@ class UserServiceTest {
     void loadUserByUsername_success() {
         String dummyEmail = "test@wanted.com";
         String dummyPassword = "12345678";
-        User dummyUser = createDummyUser(dummyEmail, dummyPassword);
+        User dummyUser = createUser(dummyEmail, dummyPassword);
 
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(dummyUser));
 

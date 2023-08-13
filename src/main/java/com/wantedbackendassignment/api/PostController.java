@@ -51,10 +51,19 @@ public class PostController {
     public ResponseEntity create(final @Valid @RequestBody PostUpdateDto postUpdateDto, @AuthenticationPrincipal User currentUser) {
         HttpStatus created = HttpStatus.CREATED;
 
-        com.wantedbackendassignment.api.post.Post newPost = postMapper.toPost(postUpdateDto);
+        Post newPost = postMapper.toPost(postUpdateDto);
         postService.create(newPost, currentUser);
 
         return new ResponseEntity<>(httpUtils.createSuccessResponse("post create success", created.value()), created);
+    }
+
+    @GetMapping("")
+    public ResponseEntity detail(@RequestParam("id") Post currentPost) {
+        HttpStatus ok = HttpStatus.OK;
+
+        PostInfoDto postInfoDto = postMapper.toPostInfoDto(currentPost);
+
+        return new ResponseEntity<>(httpUtils.createSuccessResponse(postInfoDto, ok.value()), ok);
     }
 
     @GetMapping("/list")
@@ -68,16 +77,6 @@ public class PostController {
         return new ResponseEntity<>(httpUtils.createSuccessResponse(postInfoDtos, ok.value()), ok);
     }
 
-    @GetMapping("")
-    public ResponseEntity detail(@RequestParam Long id) {
-        HttpStatus ok = HttpStatus.OK;
-
-        Post post = postService.getPost(id);
-        PostInfoDto postInfoDto = postMapper.toPostInfoDto(post);
-
-        return new ResponseEntity<>(httpUtils.createSuccessResponse(postInfoDto, ok.value()), ok);
-    }
-
     @PutMapping("")
     public ResponseEntity edit(final @Valid @RequestBody PostUpdateDto postUpdateDto, @RequestParam("id") Post currentPost, @AuthenticationPrincipal User currentUser) {
         checkAuthorship(currentPost, currentUser);
@@ -87,7 +86,7 @@ public class PostController {
         Post updatedPost = postMapper.updatePost(postUpdateDto, currentPost);
         postService.save(updatedPost);
 
-        return new ResponseEntity<>("edit post success", created);
+        return new ResponseEntity<>(httpUtils.createSuccessResponse("edit post success", created.value()), created);
     }
 
     @DeleteMapping("")
@@ -98,42 +97,42 @@ public class PostController {
 
         postService.delete(currentPost);
 
-        return new ResponseEntity<>("delete post success", ok);
+        return new ResponseEntity<>(httpUtils.createSuccessResponse("delete post success", ok.value()), ok);
     }
 
     private PageRequest getPageRequest(Map<String, String> pageRequest) {
-        Integer pageNumber = Integer.parseInt(pageRequest.get("pageNumber")) - 1;
+        Integer pageNumber = Integer.parseInt(pageRequest.get("pageNumber"));
         Integer pageSize = Integer.parseInt(pageRequest.get("pageSize"));
         String sortColumn = pageRequest.get("sortColumn");
         String sortOrder = pageRequest.get("sortOrder");
 
-        validatePageRequest(pageNumber, sortColumn, sortOrder);
+        validatePageRequest(pageNumber, pageSize, sortColumn, sortOrder);
+
+        pageNumber -= 1;
 
         return PageRequest.of(
                 pageNumber, pageSize, Sort.by(sortOrder.equals("ASC") ? Direction.ASC : Direction.DESC, sortColumn)
         );
     }
 
-    private boolean validatePageRequest(Integer pageNumber, String sortColumn, String sortOrder) {
-        if (pageNumber == null || sortColumn == null || sortOrder == null) {
-            return false;
+    private void validatePageRequest(Integer pageNumber, Integer pageSize, String sortColumn, String sortOrder) {
+        if (pageNumber == null || sortColumn == null || sortOrder == null || pageSize == null) {
+            throw new IllegalArgumentException("Page request field missing");
         }
 
-        if (pageNumber < 0) {
-            return false;
+        if (pageNumber <= 0) {
+            throw new IllegalArgumentException("The page number is 1 or higher");
         }
 
         if (!loadSortColumns().contains(sortColumn)) {
-            return false;
+            throw new IllegalArgumentException("Sort column field value is not valid");
         }
 
         try {
             Direction.valueOf(sortOrder);
         } catch (IllegalArgumentException e){
-            return false;
+            throw new IllegalArgumentException("Sort order field value is not valid");
         }
-
-        return true;
     }
 
     private List<String> loadSortColumns() {

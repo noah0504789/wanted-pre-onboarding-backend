@@ -20,7 +20,7 @@ import org.springframework.security.core.Authentication;
 import java.io.IOException;
 
 import static com.wantedbackendassignment.api.UserUtils.createAuthentication;
-import static com.wantedbackendassignment.api.UserUtils.createDummyUser;
+import static com.wantedbackendassignment.api.UserUtils.createUser;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -52,7 +52,7 @@ class LoginSuccessHandlerTest {
     void onAuthenticationSuccess() throws IOException {
         String dummyEmail = "test@wanted.com";
         String dummyPassword = "12345678";
-        User newUser = createDummyUser(dummyEmail, dummyPassword);
+        User newUser = createUser(dummyEmail, dummyPassword);
         Authentication authentication = createAuthentication(newUser, dummyPassword);
 
         String accessToken = "access_token_value";

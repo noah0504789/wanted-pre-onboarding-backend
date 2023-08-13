@@ -9,12 +9,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static com.wantedbackendassignment.api.UserUtils.createAuthentication;
-import static com.wantedbackendassignment.api.UserUtils.createDummyUser;
+import static com.wantedbackendassignment.api.UserUtils.createUser;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +31,7 @@ class LoginProviderTest {
     void authenticate_success() {
         String dummyEmail = "test@wanted.com";
         String dummyPassword = "12345678";
-        User dummyUser = createDummyUser(dummyEmail, dummyPassword);
+        User dummyUser = createUser(dummyEmail, dummyPassword);
 
         when(userService.loadUserByUsername(dummyEmail)).thenReturn(dummyUser);
         when(userService.isEqualPassword(dummyPassword, dummyUser.getPassword())).thenReturn(true);
@@ -61,7 +60,7 @@ class LoginProviderTest {
     void authenticate_failure_mismatched_password() {
         String dummyEmail = "test@wanted.com";
         String dummyPassword = "12345678";
-        User dummyUser = createDummyUser(dummyEmail, dummyPassword);
+        User dummyUser = createUser(dummyEmail, dummyPassword);
         when(userService.loadUserByUsername(dummyEmail)).thenReturn(dummyUser);
 
         String mismatchedPassword = "123456789";

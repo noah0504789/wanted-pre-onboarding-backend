@@ -1,10 +1,9 @@
-package com.wantedbackendassignment.api;
+package com.wantedbackendassignment.api.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wantedbackendassignment.api.auth.jwt.JwtAuthenticationFilter;
+import com.wantedbackendassignment.api.AuthController;
 import com.wantedbackendassignment.api.auth.jwt.JwtProvider;
 import com.wantedbackendassignment.api.auth.login.LoginFailureHandler;
-import com.wantedbackendassignment.api.auth.login.LoginFilter;
 import com.wantedbackendassignment.api.auth.login.LoginProvider;
 import com.wantedbackendassignment.api.auth.login.LoginSuccessHandler;
 import com.wantedbackendassignment.api.config.SecurityConfig;
@@ -31,7 +30,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.stream.Stream;
 
-import static com.wantedbackendassignment.api.UserUtils.createDummyUser;
+import static com.wantedbackendassignment.api.UserUtils.createUser;
 import static com.wantedbackendassignment.api.UserUtils.createSignUpDto;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.is;
@@ -87,7 +86,7 @@ class AuthControllerTest {
     String signUpUrl = "/api/auth/sign-up";
 
     @Test
-    @DisplayName("signUp() : 유효한 값으로 회원가입 요청")
+    @DisplayName("signUp() 성공 : 유효한 값으로 회원가입 요청")
     void signUp_success() throws Exception {
         String dummyEmail = "test@wanted.com";
         String dummyPassword = "12345678";
@@ -109,7 +108,7 @@ class AuthControllerTest {
         SignUpDto signUpDto = createSignUpDto(invalidEmail, invalidPassword);
 
         when(userService.signUp(any(User.class)))
-                .thenReturn(createDummyUser(invalidEmail, "encoded" + invalidPassword));
+                .thenReturn(createUser(invalidEmail, "encoded" + invalidPassword));
 
         mvc.perform(post(signUpUrl)
                         .contentType(MediaType.APPLICATION_JSON)

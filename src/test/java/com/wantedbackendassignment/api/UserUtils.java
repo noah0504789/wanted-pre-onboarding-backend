@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication;
 
 public class UserUtils {
 
-    public static User createDummyUser(String dummyEmail, String dummyPassword) {
+    public static User createUser(String dummyEmail, String dummyPassword) {
         return User.builder()
                 .email(dummyEmail)
                 .password(dummyPassword)

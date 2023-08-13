@@ -2,10 +2,8 @@ package com.wantedbackendassignment.api.auth.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wantedbackendassignment.api.dto.LoginDto;
-import com.wantedbackendassignment.api.dto.SignUpDto;
 import com.wantedbackendassignment.api.user.User;
 import com.wantedbackendassignment.api.user.UserService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,9 +16,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import static com.wantedbackendassignment.api.UserUtils.createDummyUser;
+import static com.wantedbackendassignment.api.UserUtils.createUser;
 import static com.wantedbackendassignment.api.UserUtils.createLoginDto;
-import static com.wantedbackendassignment.api.UserUtils.createSignUpDto;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -58,7 +55,7 @@ class LoginFilterTest {
                 .alwaysDo(print())
                 .build();
 
-        User dummyUser = createDummyUser(existsEmail, existsPassword);
+        User dummyUser = createUser(existsEmail, existsPassword);
         userService.signUp(dummyUser);
     }
 

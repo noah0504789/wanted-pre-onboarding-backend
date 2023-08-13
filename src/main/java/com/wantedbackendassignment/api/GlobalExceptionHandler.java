@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -28,8 +29,18 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(value = IllegalArgumentException.class)
-    public ResponseEntity<ResponseDto> handleIllegalArgumentException(IllegalArgumentException e) {
+    @ExceptionHandler(value = {IllegalArgumentException.class, NumberFormatException.class})
+    public ResponseEntity<ResponseDto> handleIllegalArgumentException(RuntimeException e) {
+        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+
+        return new ResponseEntity<>(
+                httpUtils.createFailureResponse(e.getMessage(), badRequest.value()),
+                badRequest
+        );
+    }
+
+    @ExceptionHandler(value = MissingServletRequestParameterException.class)
+    public ResponseEntity<ResponseDto> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
 
         return new ResponseEntity<>(
