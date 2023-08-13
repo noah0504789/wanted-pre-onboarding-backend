@@ -44,6 +44,8 @@ public class SecurityConfig {
     @PostConstruct
     private void init() {
         AUTHENTICATION_WHITELIST = new String[]{
+                "/swagger/**",
+                "/swagger-ui/**",
                 "/api/auth/sign-up",
                 "/api/post/list"
         };
