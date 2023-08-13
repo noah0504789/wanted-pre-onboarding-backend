@@ -22,14 +22,14 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public Page<Post> getPosts(PageRequest pageRequest) {
-        return postRepository.findAll(pageRequest);
+    public Post getPost(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("This post does not exist"));
     }
 
     @Override
-    public Post getPost(Long id) {
-        return postRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("This post does not exist"));
+    public Page<Post> getPosts(PageRequest pageRequest) {
+        return postRepository.findAll(pageRequest);
     }
 
     @Override

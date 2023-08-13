@@ -102,14 +102,42 @@ public class PostController {
     }
 
     private PageRequest getPageRequest(Map<String, String> pageRequest) {
-        int pageNumber = Integer.parseInt(pageRequest.get("pageNumber")) - 1;
-        int pageSize = Integer.parseInt(pageRequest.get("pageSize"));
+        Integer pageNumber = Integer.parseInt(pageRequest.get("pageNumber")) - 1;
+        Integer pageSize = Integer.parseInt(pageRequest.get("pageSize"));
         String sortColumn = pageRequest.get("sortColumn");
         String sortOrder = pageRequest.get("sortOrder");
+
+        validatePageRequest(pageNumber, sortColumn, sortOrder);
 
         return PageRequest.of(
                 pageNumber, pageSize, Sort.by(sortOrder.equals("ASC") ? Direction.ASC : Direction.DESC, sortColumn)
         );
+    }
+
+    private boolean validatePageRequest(Integer pageNumber, String sortColumn, String sortOrder) {
+        if (pageNumber == null || sortColumn == null || sortOrder == null) {
+            return false;
+        }
+
+        if (pageNumber < 0) {
+            return false;
+        }
+
+        if (!loadSortColumns().contains(sortColumn)) {
+            return false;
+        }
+
+        try {
+            Direction.valueOf(sortOrder);
+        } catch (IllegalArgumentException e){
+            return false;
+        }
+
+        return true;
+    }
+
+    private List<String> loadSortColumns() {
+        return List.of("title", "createdDate");
     }
 
     private void checkAuthorship(Post currentPost, User currentUser) {
