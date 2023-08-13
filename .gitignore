@@ -35,3 +35,9 @@ out/
 
 ### VS Code ###
 .vscode/
+.env
+.mysql_env
+
+db/data/
+nginx/
+*.http
