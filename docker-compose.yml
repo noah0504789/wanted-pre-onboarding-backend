@@ -1,0 +1,31 @@
+version: "3"
+services:
+  database:
+    image: mysql
+    volumes:
+      - ./db/data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    env_file: .mysql_env
+    restart: always
+    networks:
+      - test_network_01
+  web:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+    - application
+    networks:
+      - test_network_01
+  application:
+    build: .
+    depends_on:
+      - database
+    env_file: .env
+    networks:
+      - test_network_01
+networks:
+  test_network_01:

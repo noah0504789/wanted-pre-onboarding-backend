@@ -39,5 +39,4 @@ out/
 .mysql_env
 
 db/data/
-nginx/
 *.http
